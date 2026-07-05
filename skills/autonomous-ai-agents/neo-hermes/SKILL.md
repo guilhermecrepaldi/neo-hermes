@@ -166,6 +166,7 @@ NUNCA termine task com pendencia sem criar watchdog.
 
 | Skill | Função | Inspiração | Criada |
 |-------|--------|-----------|--------|
+| `token-compressor` | Compressão OBRIGATÓRIA de contexto via Ollama local | billing reduction | Jul/2026 |
 | `neo-hermes` | Entry point — este documento | Consolidação total | Jun/2026 |
 | `auto-executor` | Loop Plan→Execute→Verify | Claude Code + Grok Build | Jun/2026 |
 | `auto-healing` | Fallbacks automáticos | DeepSeek resiliência | Jun/2026 |
