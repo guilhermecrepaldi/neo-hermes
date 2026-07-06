@@ -288,7 +288,125 @@ class KVCache:
 
 
 # ═══════════════════════════════════════════════
-# EXPORT
+# V3 INTEGRATION — Feature flags + RouterV2 hook
+# ═══════════════════════════════════════════════
+# Ativação segura: com flags false, comportamento = 100% original.
+# Controlado por config/orchestrator.yaml.
+# ═══════════════════════════════════════════════
+
+# Carrega config (se falhar, defaults seguros)
+_V3_CONFIG = {}
+try:
+    from core.config_loader import load_orchestrator_config
+    _V3_CONFIG = load_orchestrator_config()
+except Exception:
+    pass
+
+_ORCH_CFG = _V3_CONFIG.get("orchestrator", {}) if _V3_CONFIG else {}
+
+# Inicializa componentes V3 (lazy, só se configurados)
+_router_v2 = None
+_audit_v3 = None
+_store_v3 = None
+
+if _ORCH_CFG.get("audit_enabled", True):
+    try:
+        from core.audit import AuditLogger
+        _audit_v3 = AuditLogger()
+        logger.info("V3: AuditLogger ativo")
+    except Exception as e:
+        logger.warning(f"V3: AuditLogger falhou: {e}")
+
+if _ORCH_CFG.get("use_memory_v2", True):
+    try:
+        from memory.store import MemoryStore
+        _store_v3 = MemoryStore()
+    except Exception:
+        pass
+
+if _ORCH_CFG.get("use_router_v2", False):
+    try:
+        from core.router_v2 import RouterV2
+        _router_v2 = RouterV2(
+            memory_store=_store_v3,
+            audit_logger=_audit_v3,
+            config=_V3_CONFIG,
+            dry_run=_ORCH_CFG.get("dry_run_review", True),
+        )
+        logger.info("V3: RouterV2 ativo (feature flag ON)")
+    except Exception as e:
+        logger.warning(f"V3: RouterV2 falhou ao inicializar: {e}")
+
+
+async def processar_tarefa(task: str, system_prompt: str = None,
+                            is_critical: bool = False,
+                            session_id: str = "default") -> dict:
+    """Processa uma tarefa usando o RouterV2 (se ativo) ou comportamento original.
+    
+    Feature flag `orchestrator.use_router_v2` em config/orchestrator.yaml:
+    - true: usa RouterV2.execute() com revisão, memória, compressão
+    - false: usa shellz original (comportamento 100% preservado)
+    
+    Args:
+        task: Texto da tarefa
+        system_prompt: System prompt opcional
+        is_critical: Se é tarefa crítica
+        session_id: Sessão para isolamento de memória/custo
+    
+    Returns:
+        Dict com resultado + metadados
+    """
+    if _router_v2 is not None:
+        return await _router_v2.execute(
+            task=task,
+            system_prompt=system_prompt,
+            is_critical=is_critical,
+            session_id=session_id,
+        )
+    
+    # Comportamento original: chama shellz
+    logger.info("V3: RouterV2 desligado, usando shellz original")
+    try:
+        from shellz import rotear_obrigatorio
+        decision = rotear_obrigatorio(task)
+        return {
+            "response": f"Roteado para {decision.shell} ({decision.provider}:{decision.model})",
+            "decision": {
+                "provider": decision.provider,
+                "model": decision.model,
+                "risk": "unknown",
+                "cost_estimate": decision.cost_per_1m / 1_000_000,
+                "needed_review": False,
+            },
+            "verdict": {"approved": True, "reviewer": "legacy"},
+            "cost": {"usd": 0.0},
+            "performance": {"provider": "legacy"},
+        }
+    except Exception as e:
+        logger.error(f"processar_tarefa (legacy) falhou: {e}")
+        return {"error": str(e)}
+
+
+def v3_status() -> dict:
+    """Retorna status dos componentes V3."""
+    return {
+        "router_v2": _router_v2 is not None,
+        "audit": _audit_v3 is not None,
+        "memory_v2": _store_v3 is not None,
+        "config_keys": list(_V3_CONFIG.keys()) if _V3_CONFIG else [],
+        "flags": {
+            "use_router_v2": _ORCH_CFG.get("use_router_v2", False),
+            "use_cross_review": _ORCH_CFG.get("use_cross_review", False),
+            "use_memory_v2": _ORCH_CFG.get("use_memory_v2", True),
+            "use_compression": _ORCH_CFG.get("use_compression", True),
+            "dry_run_review": _ORCH_CFG.get("dry_run_review", True),
+            "audit_enabled": _ORCH_CFG.get("audit_enabled", True),
+        },
+    }
+
+
+# ═══════════════════════════════════════════════
+# EXPORT (atualizado com V3)
 # ═══════════════════════════════════════════════
 
 __all__ = [
@@ -296,4 +414,5 @@ __all__ = [
     "criar_worktree", "remover_worktree",
     "InitializerAgent", "CodingAgent",
     "CheckpointManager", "HookManager", "KVCache",
+    "processar_tarefa", "v3_status",
 ]

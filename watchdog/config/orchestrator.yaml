@@ -1,0 +1,51 @@
+# ─── Feature Flags do Orquestrador V3 ────────────
+# Ativação segura: cada flag pode ser ligada independentemente.
+# Nenhuma mudança de comportamento até você explicitamente ativar.
+
+orchestrator:
+  use_router_v2: false        # true = engine.py usa RouterV2.execute()
+  use_cross_review: false     # true = Council ativo
+  use_memory_v2: true         # MemoryStore já é aditivo, baixo risco
+  use_compression: true       # ContextCompressor já é aditivo
+  dry_run_review: true        # Loga o que o Council faria, sem custo real
+  audit_enabled: true         # AuditLogger sempre ligado (observação)
+
+# ─── Gatilhos do Cross-Review Council ───────────
+council:
+  triggers:
+    g1_critical:
+      enabled: true
+      description: "Tarefa marcada como crítica → sempre revisa"
+    
+    g2_low_confidence:
+      enabled: true
+      keywords: [
+        "não tenho certeza", "não sei", "talvez", "possivelmente",
+        "acredito que", "pode ser que", "não tenho dados",
+        "não consigo afirmar", "eu acho", "provavelmente"
+      ]
+      description: "Resposta contém sinais de baixa confiança"
+    
+    g3_short_response:
+      enabled: true
+      min_task_len: 300
+      max_response_len: 100
+      description: "Resposta muito curta para tarefa longa"
+    
+    g4_rejection_cache:
+      enabled: true
+      description: "Tipo de tarefa foi rejeitado anteriormente"
+    
+    g5_cheap_executor:
+      enabled: true
+      min_task_len: 400           # ANTES: 150. Ajustado para reduzir falso-positivo.
+      sample_rate: 0.3            # NOVO: amostragem determinística via task_hash
+      description: "Executor barato + tarefa longa → revisa amostra"
+
+# ─── Pareamento Executor → Revisor ──────────────
+pairing_defaults:
+  ollama-local: deepseek-flash
+  deepseek-flash: ollama-local
+  deepseek-pro: ollama-local
+  # Adicione aqui ao registrar novo provider:
+  # novo-provider: ollama-local

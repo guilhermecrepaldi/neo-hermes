@@ -1,0 +1,82 @@
+# ──────────────────────────────────────────────────────────────────
+# providers.yaml — Configuração de provedores do Orquestrador V2
+# ──────────────────────────────────────────────────────────────────
+# Cada entrada define um provedor que pode ser usado pelos papéis
+# (executor, reviewer, compressor, embeddings, etc.).
+#
+# Para adicionar um novo provedor em F1, basta criar a classe
+# correspondente em providers/ e adicioná-la aqui.
+# ──────────────────────────────────────────────────────────────────
+
+version: "2.0"
+
+providers:
+
+  # ── DeepSeek Flash (barato, rápido) ────────────────────────────
+  - name: "deepseek-flash"
+    display_name: "DeepSeek Flash"
+    class: "providers.deepseek_provider.DeepSeekProvider"
+    kwargs:
+      profile: "flash"
+    model: "deepseek-v4-flash"
+    roles:
+      - executor
+    pricing:
+      input_per_1m: 0.15    # USD
+      output_per_1m: 0.30   # USD
+    requires_key: true
+    env_key: "DEEPSEEK_API_KEY"
+    enabled: true
+
+  # ── DeepSeek Pro (potente, caro) ───────────────────────────────
+  - name: "deepseek-pro"
+    display_name: "DeepSeek Pro"
+    class: "providers.deepseek_provider.DeepSeekProvider"
+    kwargs:
+      profile: "pro"
+    model: "deepseek-v4-pro"
+    roles:
+      - executor
+      - reviewer
+    pricing:
+      input_per_1m: 0.55
+      output_per_1m: 2.19
+    requires_key: true
+    env_key: "DEEPSEEK_API_KEY"
+    enabled: true
+
+  # ── Ollama Local (grátis, 100% local) ──────────────────────────
+  - name: "ollama-local"
+    display_name: "Ollama (Local)"
+    class: "providers.ollama_provider.OllamaProvider"
+    kwargs:
+      model: "qwen2.5-coder:7b"
+    model: "qwen2.5-coder:7b"
+    roles:
+      - executor
+      - reviewer
+      - compressor
+      - embeddings
+    pricing:
+      input_per_1m: 0.0
+      output_per_1m: 0.0
+    requires_key: false
+    is_local: true
+    enabled: true
+
+  # ── OpenAI GPT-5 (futuro — descomentar quando disponível) ────
+  # - name: "openai-gpt5"
+  #   display_name: "OpenAI GPT-5"
+  #   class: "providers.openai_provider.OpenAIProvider"
+  #   kwargs:
+  #     model: "gpt-5"
+  #   model: "gpt-5"
+  #   roles:
+  #     - executor
+  #     - reviewer
+  #   pricing:
+  #     input_per_1m: 10.00
+  #     output_per_1m: 40.00
+  #   requires_key: true
+  #   env_key: "OPENAI_API_KEY"
+  #   enabled: false
