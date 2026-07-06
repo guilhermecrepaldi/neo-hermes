@@ -12,16 +12,18 @@
 4. [Provider Layer](#4-provider-layer)
 5. [Memória Externa](#5-memória-externa)
 6. [Context Compressor](#6-context-compressor)
-7. [Cross-Review Council](#7-cross-review-council)
-8. [Router Econômico](#8-router-econômico)
-9. [Auditoria (V3)](#9-auditoria-v3)
-10. [Benchmark (V3)](#10-benchmark-v3)
-11. [Dashboard (V3)](#11-dashboard-v3)
-12. [Feature Flags](#12-feature-flags)
-13. [Testes](#13-testes)
-14. [Modelo de Custos](#14-modelo-de-custos)
-15. [Como Adicionar um Provider](#15-como-adicionar-um-provider)
-16. [Roadmap](#16-roadmap)
+7. [Deterministic Compressor (V3)](#7-deterministic-compressor-v3)
+8. [Cross-Review Council](#8-cross-review-council)
+9. [Terse Policy (V3)](#9-terse-policy-v3)
+10. [Router Econômico](#10-router-econômico)
+11. [Auditoria (V3)](#11-auditoria-v3)
+12. [Benchmark (V3)](#12-benchmark-v3)
+13. [Dashboard (V3)](#13-dashboard-v3)
+14. [Feature Flags](#14-feature-flags)
+15. [Testes](#15-testes)
+16. [Modelo de Custos](#16-modelo-de-custos)
+17. [Como Adicionar um Provider](#17-como-adicionar-um-provider)
+18. [Roadmap](#18-roadmap)
 
 ---
 
@@ -159,7 +161,35 @@ Compressão de contexto **sempre via Ollama local (custo $0)**. Nunca via API pa
 | `compress_if_needed()` | Antes de enviar ao provider (threshold: 3000 tokens) | Últimas 4 msgs + primeiras 2 sempre preservadas |
 | `compress_fact()` | Antes de salvar na memória | Só comprime se texto > 200 chars |
 
-## 7. Cross-Review Council
+## 7. Deterministic Compressor (V3-F8)
+
+Compressor puramente lógico — **zero LLM, zero custo**. Usa regras determinísticas para comprimir tool outputs, logs, JSON e strings longas sem chamar Ollama ou qualquer API.
+
+| Característica | Descrição |
+|---------------|-----------|
+| **Custo** | $0 (puro Python, sem API) |
+| **Idempotente** | Mesmo input N vezes → mesmo output |
+| **Preserva** | Erros, exceções, tracebacks, números, paths |
+| **JSON** | Trunca arrays > 20 itens, strings > 8K chars |
+| **Logs** | Preserva início (15 linhas) + fim (15 linhas) + linhas com erro ±2 |
+
+```python
+from memory.deterministic_compressor import DeterministicCompressor
+dc = DeterministicCompressor()
+
+# Comprime JSON longo
+compressed = dc.compress_tool_output(json.dumps(big_list))
+
+# Comprime logs preservando erros
+compressed = dc.compress_tool_output(log_output)
+
+# Comprime fato para memória
+fact = dc.compress_fact(raw_text)
+```
+
+**Prioridade de uso:** DeterministicCompressor SEMPRE antes do ContextCompressor (Ollama). Se o determinístico não reduzir o suficiente (>30%), aí chama o Ollama.
+
+## 8. Cross-Review Council
 
 Revisão cruzada entre agentes de diferentes provedores. **Revisor nunca é o mesmo perfil que executou.**
 
@@ -185,7 +215,34 @@ Revisão cruzada entre agentes de diferentes provedores. **Revisor nunca é o me
 
 Modo `dry_run=True`: loga a decisão de revisão sem chamar o revisor de fato. Custo $0. Use para calibrar antes de ativar.
 
-## 8. Router Econômico
+## 9. Terse Policy (V3-F9)
+
+Política de concisão para outputs de agentes internos. Aplica-se **seletivamente** por papel (reviewer, compressor, executor) — **nunca afeta respostas finais para humanos**.
+
+**Duas frentes:**
+1. **Prompt wrapper**: anexa instrução de concisão ao system prompt por papel
+2. **Post-processor**: remove saudações, fechamentos, justificativas e texto extra ao redor de JSON
+
+```python
+from core.terse_policy import TersePolicy
+tp = TersePolicy()
+
+# Wrap prompt: adiciona "Seja CONCISO" ao prompt do revisor
+prompt, system = tp.wrap_prompt("Analise isso", role="reviewer")
+
+# Post-process: remove verbosidade da resposta
+clean = tp.post_process(resposta_do_revisor, role="reviewer", is_json=True)
+```
+
+**Comportamento por papel:**
+
+| Papel | Prompt adicionado | Pós-processamento |
+|-------|------------------|-------------------|
+| `reviewer` | "Seja CONCISO. Responda APENAS o JSON." | Remove texto antes/depois do JSON |
+| `compressor` | "Seja CONCISO. Preserve APENAS números." | Remove saudações/fechamentos |
+| `executor` | "Seja direto. Sem introduções." | Remove saudações/fechamentos |
+
+## 10. Router Econômico
 
 Decide como executar cada tarefa baseado em risco e custo.
 
@@ -195,7 +252,7 @@ Decide como executar cada tarefa baseado em risco e custo.
 | **medium** | `deepseek-flash` | $0.15/M in + $0.30/M out | Código, análise, API |
 | **low** | `ollama-local` | $0.00 | Comandos locais, consultas |
 
-## 9. Auditoria (V3)
+## 11. Auditoria (V3)
 
 **AuditLogger** — Singleton. Grava cada decisão de roteamento/revisão em `decision_log` (SQLite aditivo à V2).
 
@@ -223,7 +280,7 @@ class DecisionRecord:
 - `query_cost_vs_estimate(since_days=7)` — estimado vs real, por papel
 - `query_recent_decisions(limit=20)` — últimas N decisões
 
-## 10. Benchmark (V3)
+## 12. Benchmark (V3)
 
 Harness determinístico de regressão. 23 tarefas fixas em `benchmark/tasks.json`.
 
@@ -246,7 +303,7 @@ python benchmark/run_comparison.py
 
 **Resultados salvos em:** `benchmark/results/g5_before.json` e `g5_after.json`
 
-## 11. Dashboard (V3)
+## 13. Dashboard (V3)
 
 Relatório de custo, gatilhos e saúde. Fonte de verdade para decisões de ativação.
 
@@ -256,7 +313,7 @@ python ops/dashboard.py --days 7
 
 **Saída:** custo por papel, frequência de gatilhos (com barras visuais), estatísticas da memória, últimas decisões.
 
-## 12. Feature Flags
+## 14. Feature Flags
 
 Controladas por `config/orchestrator.yaml`. **Todas desligadas por default** — zero mudança de comportamento até você ativar.
 
@@ -279,27 +336,30 @@ Controladas por `config/orchestrator.yaml`. **Todas desligadas por default** —
 | 4 | `dry_run_review: true` (3-7 dias) | AuditLogger: quanto custaria |
 | 5 | `use_cross_review: true`, dry_run off | Monitorar cost_ledger diariamente |
 
-## 13. Testes
+## 15. Testes
 
-**35 testes, todos passando:**
+**89 testes, todos passando:**
 
 ```
 tests/test_v2_orchestration.py  → 30 testes (5 classes)
-  ├── TestProviderLayer         →  6 testes (registry, interfaces, custo, health)
-  ├── TestMemoryStore           →  8 testes (CRUD, busca, revisões, custo, decay)
-  ├── TestContextCompressor     →  3 testes (tokens, compress, skip small)
-  ├── TestCouncil               →  8 testes (5 gatilhos + parse + distribuição G5)
-  └── TestRouterV2              →  5 testes (risco, hash, executor, decisão)
+  ├── TestProviderLayer         →  6 testes
+  ├── TestMemoryStore           →  8 testes
+  ├── TestContextCompressor     →  3 testes
+  ├── TestCouncil               →  8 testes (inclui g5_sample_rate_distribution)
+  └── TestRouterV2              →  5 testes
 
-tests/test_audit.py             →  5 testes (2 classes)
-  └── TestAuditLogger           →  5 testes (record, query, dry_run, cost, recent)
+tests/test_audit.py             →  5 testes (AuditLogger)
+
+tests/test_f8_f9.py             → 24 testes (F8+F9)
+  ├── TestDeterministicCompressor  → 12 testes
+  └── TestTersePolicy              → 12 testes
 ```
 
 ```bash
 python -m pytest tests/ -v
 ```
 
-## 14. Modelo de Custos
+## 16. Modelo de Custos
 
 | Operação | Custo real | Se fosse API paga | Economia |
 |----------|-----------|-------------------|----------|
@@ -315,7 +375,7 @@ python -m pytest tests/ -v
 - **R3:** Revisor NUNCA é o mesmo perfil do executor (tabela de pareamento fixa).
 - **R4:** Hard cap de 2 rounds de retry por revisão.
 
-## 15. Como Adicionar um Provider
+## 17. Como Adicionar um Provider
 
 ```python
 # 1. Criar o adapter
@@ -341,7 +401,7 @@ pairing_defaults:
 python -c "from ops.reload_providers import reload_from_yaml; print(reload_from_yaml())"
 ```
 
-## 16. Roadmap
+## 18. Roadmap
 
 | Prioridade | O quê | Status |
 |-----------|-------|--------|
@@ -354,7 +414,10 @@ python -c "from ops.reload_providers import reload_from_yaml; print(reload_from_
 | — | Calibração G5: min_task_len 150→400, sample_rate 0.3 | ✅ V3-F2 |
 | — | Benchmark determinístico com 23 tarefas | ✅ V3-F3 |
 | — | Teste de distribuição G5 (200 hashes, margem 20-40%) | ✅ |
+| — | DeterministicCompressor (F8) — zero LLM, zero custo | ✅ |
+| — | TersePolicy (F9) — concisão por papel, sem afetar humanos | ✅ |
+| — | 89/89 testes passando (V2+V3+F8+F9) | ✅ |
 
 ---
 
-*Neo Hermes V3 — 2026-07-06 — 35/35 testes — $0 de custo de infraestrutura*
+*Neo Hermes V3 — 2026-07-06 — 89/89 testes — $0 de custo de infraestrutura*
