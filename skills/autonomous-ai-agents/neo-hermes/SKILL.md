@@ -1,6 +1,11 @@
 ---
 name: neo-hermes
-description: "NEO HERMES — entry point do ecossistema completo. Consolida todas as skills em um pipeline unificado: Auto-Assembly monta workflow, DAG executa paralelo, Conselho de IAs delibera, Hooks envolvem tool calls, Token Budget controla gastos, Auto-Executor valida, Auto-Healing recupera, Taste-Skill garante qualidade, OSS-Absorb gerencia terceiros. Tudo integrado e carregado automaticamente."
+description: "NEO HERMES — entry point do ecossistema completo.
+
+## REPOS SEPARADOS (REGRRA ABSOLUTA)
+- **Ambiente Hermes** (skills, configs, watchdog) → `D:\\projetos\\gh-neo-hermes\\` → `github.com/guilhermecrepaldi/neo-hermes`
+- **Projeto LegiData** (API, frontend, crawlers) → `D:\\projetos\\jusplatform\\` → `github.com/guilhermecrepaldi/jusplatform`
+- NUNCA commitar mudança de ambiente no repo de projeto ou vice-versa Consolida todas as skills em um pipeline unificado: Auto-Assembly monta workflow, DAG executa paralelo, Conselho de IAs delibera, Hooks envolvem tool calls, Token Budget controla gastos, Auto-Executor valida, Auto-Healing recupera, Taste-Skill garante qualidade, OSS-Absorb gerencia terceiros. Tudo integrado e carregado automaticamente."
 category: autonomous-ai-agents
 tags: [neo-hermes, entry-point, ecossistema, pipeline, integrado, super-agente]
 ---
@@ -177,21 +182,54 @@ NUNCA termine task com pendencia sem criar watchdog.
 - `hermes-hooks` | Hooks pre/post tool call | Claude Code (Anthropic) | Jun/2026 |
 - `threejs-benchmark` | Benchmark Three.js (WebGL) — abrir em Chrome, Hermes nao suporta | Teste de renderizacao | Jun/2026 |
 
-### Sob demanda (carregar quando necessário)
+Sob demanda (carregar quando necessário)
 
 | Skill | Função | Inspiração | Criada |
 |-------|--------|-----------|--------|
-| `auto-assembly-workflow` | Monta workflow automaticamente | EvoAgentX (🇨🇳) | Jun/2026 |
-| `conselho-ias` | Deliberação multi-agente | Shannon (🇯🇵) + OWL (🇨🇳) | Jun/2026 |
-| `dag-workflow` | Execução paralela em grafo | OxiFY (🇯🇵) + DeerFlow (🇨🇳) | Jun/2026 |
-| `token-budget-control` | Orçamento de tokens | Shannon (🇯🇵) | Jun/2026 |
-| `oss-absorb` | Pipeline A0→A6 absorção OSS | GitHub Spec-compliant | Jun/2026 |
-| `benchmark-neo-hermes` | Benchmark econômico + assertividade | Próprio | Jun/2026 |
-| `arquitetura-code-review-loops` | Code review + QA | Google + Nubank | Jun/2026 |
-| **`python-reviewer`** 🆕 | Revisão Python (tipos, segurança, perf) | **ECC Python Reviewer** | Jul/2026 |
-| **`security-reviewer`** 🆕 | Auditoria segurança (credenciais, LGPD, CVEs) | **ECC AgentShield** | Jul/2026 |
-| **`architecture-reviewer`** 🆕 | Análise arquitetural (acoplamento, padrões) | **ECC Arch Agent** | Jul/2026 |
-| **`continuous-learning`** 🆕 | Extrai padrões de sessões → skills/memory | **ECC Continuous Learning** | Jul/2026 |
+| auto-assembly-workflow | Monta workflow automaticamente | EvoAgentX | Jun/2026 |
+| conselho-ias | Deliberação multi-agente | Shannon + OWL | Jun/2026 |
+| dag-workflow | Execução paralela em grafo | OxiFY + DeerFlow | Jun/2026 |
+| token-budget-control | Orçamento de tokens | Shannon | Jun/2026 |
+| oss-absorb | Pipeline A0-A6 absorção OSS | GitHub Spec-compliant | Jun/2026 |
+| benchmark-neo-hermes | Benchmark econômico + assertividade | Próprio | Jun/2026 |
+| arquitetura-code-review-loops | Code review + QA | Google + Nubank | Jun/2026 |
+| python-reviewer | Revisão Python (tipos, segurança, perf) | ECC Python Reviewer | Jul/2026 |
+| security-reviewer | Auditoria segurança (credenciais, LGPD, CVEs) | ECC AgentShield | Jul/2026 |
+| architecture-reviewer | Análise arquitetural (acoplamento, padrões) | ECC Arch Agent | Jul/2026 |
+| continuous-learning | Extrai padrões de sessões -> skills/memory | ECC Continuous Learning | Jul/2026 |
+| references | Sistema automático de referências: JSON + MD + API REST | Próprio | Jul/2026 |
+| **acp-agent-controller** 🆕 | Hub multi-agente (ACP Protocol) | OpenHands Agent Canvas (MIT) | Jul/2026 |
+| **browser-automation** 🆕 | Automação de navegador (Playwright) | Browser Use (MIT, 102.9K⭐) | Jul/2026 |
+| **web-crawler-llm** 🆕 | Web crawler LLM-ready (chunking + cache) | Crawl4AI (Apache-2.0, 71K⭐) | Jul/2026 |
+| **visual-workflow-builder** 🆕 | Construtor visual de workflows (React Flow) | Langflow (MIT, 151.2K⭐) | Jul/2026 |
+| **postgres-backend** 🆕 | PostgreSQL + pgvector + RLS + Realtime | Supabase (Apache-2.0, 105.8K⭐) | Jul/2026 |
+| **hermes-deploy** 🆕 | Deploy self-hosted (Docker Compose + SSH) | Coolify (Apache-2.0, 57.9K⭐) | Jul/2026 |
+| **github-portfolio-commit** 🆕 | Audita gaps de portfolio e cria arquivos faltantes em N repos | Portfolio Spec v1.0 | Jul/2026 |
+
+## 🌐 Landscape Open Source 2026 — Novas Skills
+
+Skills criadas a partir da análise landscape-2026 (8 repos top GitHub):
+
+| Skill | Inspirado em | Stars | Licença | Estratégia |
+|-------|-------------|-------|---------|-----------|
+| `acp-agent-controller` | OpenHands Agent Canvas | 79.5K⭐ | MIT | pattern-absorb |
+| `browser-automation` | Browser Use | 102.9K⭐ | MIT | pattern-absorb |
+| `web-crawler-llm` | Crawl4AI | 71K⭐ | Apache-2.0 | pattern-absorb |
+| `hermes-hooks` (expandido) | Open WebUI (plugins) | 144.3K⭐ | Custom (só análise) | analyze-only |
+
+### Próximos passos recomendados
+- **[Langflow](https://github.com/langflow-ai/langflow)** (151.2K⭐, MIT) → Visual Workflow Builder
+- **[Supabase](https://github.com/supabase/supabase)** (105.8K⭐, Apache-2.0) → PostgreSQL backend + pgvector
+- **[Coolify](https://github.com/coollabsio/coolify)** (57.9K⭐, Apache-2.0) → Deploy pipeline self-hosted
+
+Referência completa: `watchdog/references/landscape-2026.md`
+
+## Especificações e Referências
+
+Em specs/:
+- REFERENCIA_COMPLETA.md (41KB) — Dicionário técnico completo: DataJud, BrasilAPI, LegalNLP, PaaS architecture, tribunais BR, APIs, monetização
+- datajud-pipeline.md — Pipeline DataJud Elasticsearch (fundido na REFERENCIA_COMPLETA)
+- nlp-juridico-dados-publicos.md — NLP jurídico + dados públicos BR (fundido na REFERENCIA_COMPLETA)
 
 ### Estudos e fontes
 
@@ -218,6 +256,12 @@ NUNCA termine task com pendencia sem criar watchdog.
 # Descreva a tarefa diretamente:
 # "Cria uma API de usuários com FastAPI, testa e faz deploy"
 ```
+
+### Specs de Referência
+
+Specs arquiteturais criadas em sessões de estudo estão em `references/specs-index.md`.
+Path real: `/c/Users/Home/neo-hermes/specs/REFERENCIA_COMPLETA.md`
+Contém: DataJud ES queries, BrasilAPI, NLP jurídico, tribunais BR, PaaS architecture.
 
 ### Sob demanda (quando a tarefa exigir)
 
@@ -254,7 +298,7 @@ A economia e feita por 3 camadas que agem em conjunto:
 | Camada | Skill | Funcao | Economia |
 |--------|-------|--------|----------|
 | 1. Roteamento | `roteador-economico` / Shellz | S1 (Ollama $0) vs S3 (DeepSeek $) | Tarefas simples pagam $0 |
-| 2. Compressao input | `headroom` (skill) + `headroom_proxy.py` | Comprime tool outputs 60-95% antes do LLM | Input custa 5-40% do normal |
+| 2. Compressao input | Ollama local (qwen2.5-coder:7b) | Comprime tool outputs 60-95% antes do LLM | Input custa 5-40% do normal (ZERO com Ollama) |
 | 3. Compressao output | Caveman (futuro) | Respostas minimalistas, 65-87% menos tokens | Output custa 13-35% do normal |
 
 | Metrica | Valor |
@@ -268,11 +312,11 @@ A economia e feita por 3 camadas que agem em conjunto:
 ## Stack Tecnica
 
 ```
-LLM Padrao:      DeepSeek V4 Flash ($0.15/1M) via Headroom proxy (:8787)
-LLM Fallback:    DeepSeek V4 Pro ($0.50/1M) — direto (fallback se proxy cair)
+LLM Padrao:      DeepSeek V4 Flash ($0.15/1M) — direto (sem proxy)
+LLM Fallback:    DeepSeek V4 Pro ($0.50/1M) — direto
 IA Local (S1):   Ollama qwen2.5-coder:7b (58tok/s, $0)
-Proxy:           headroom_proxy.py v2 — compressao + SSE streaming + Threading
-CLI compressao:  s3_headroom.py — project load, compress, search, map
+Proxy:           NENHUM — sem cache externo
+CLI compressao:  compressor_local.py — compressão via Ollama local
 Output minimize: Caveman (72.8K⭐, nao instalado) — 65-87% output savings
 Orquestracao:    delegate_task + Hermes cron
 Memoria:         Hermes memory + skills
@@ -283,7 +327,17 @@ Quality Gate:    taste-skill (10 regras pre-commit)
 OSS Compliance:  oss-absorb (license gate A3)
 Recovery guide:  hermes-config-essentials.md — 7 passos ~15min se formatar o PC
 
-## Referências
+### Ambiente Workflow (Jul/2026)
+
+Nova trifecta de arquivos de ambiente: `.cursorrules` (padrões código) + `AGENTS.md` (instruções agentes) + `DETERMINISTICO.md` (regras ferro). ReviewTeam com 3 agentes críticos (código, arquitetura, solucionador). References system salva automaticamente toda referência útil. Detalhes em `references/trifecta-reviewteam-references.md`.
+
+### 💡 Compressão (CRÍTICO)
+- `references/hermes-compression-setup.md` — Compressão de contexto DEVE usar Ollama (grátis), NUNCA DeepSeek (pago). Config via `hermes config set auxiliary.compression.provider ollama`. Referência detalhada no arquivo.
+
+### 💡 .NET Telemetry (Performance Suite OS)
+- `references/dotnet-telemetry-patterns.md` — Gmail SMTP/IMAP com App Passwords, SQLCipher com fallback, AvaloniaUI patterns, Telemetry collection (GetLastInputInfo), Worker Service config, pitfalls comuns. Consulte ao trabalhar com telemetria Windows/.NET, envio/recepção Gmail, ou dashboards Avalonia.
+
+### 💡 Referências
 
 ### Anthropic (Claude Code)
 - **Effective Harnesses for Long-Running Agents** (Nov/2025): initializer + coding agent pattern, claude-progress.txt, feature list with passing/failing markers
@@ -301,33 +355,45 @@ Recovery guide:  hermes-config-essentials.md — 7 passos ~15min se formatar o P
 - **Shannon** (Kocoro-lab): https://github.com/Kocoro-lab/Shannon
 - **OxiFY** (cool-japan): https://github.com/cool-japan/oxify
 
-### 🇨🇳 China
-- **DeerFlow** (ByteDance): https://github.com/bytedance/deer-flow — 37K⭐
-- **OWL** (CAMEL-AI): https://github.com/camel-ai/owl — 19.9K⭐
-- **EvoAgentX**: https://github.com/EvoAgentX/EvoAgentX — 3.1K⭐
-- **LightAgent** (wanxingai): https://github.com/wanxingai/LightAgent — 1.1K⭐
-
-### 🇯🇵 Japão
-- **Shannon** (Kocoro-lab): https://github.com/Kocoro-lab/Shannon
-- **OxiFY** (cool-japan): https://github.com/cool-japan/oxify
-
 ### 🌐 Outros
 - **GitHub Spec Kit**: https://github.com/github/spec-kit (114K⭐)
 - **Claude Code Leak**: https://github.com/chauncygu/collection-claude-code-source-code
 - **System Prompts Leaks**: https://github.com/asgeirtj/system_prompts_leaks (43.3K⭐)
 - **Hermes Agent**: https://github.com/NousResearch/hermes-agent
 
-### ⭐ ECC — Agent Harness OS (Jul/2026) 🆕
-- **ECC**: https://github.com/affaan-m/ECC — **⭐211.9K**
-- **Site oficial**: https://ecc.tools
-- **Discord**: https://discord.gg/36yGMHGFbR
-- **npm**: `ecc-universal`, `ecc-agentshield`
-- **Conceitos absorvidos**:
-  - **66 agentes especializados** → criamos `python-reviewer`, `security-reviewer`, `architecture-reviewer`
-  - **AgentShield** → criamos `security-reviewer` com scanning de 5 camadas
-  - **Hooks avançados** → expandimos `hermes-hooks` com 17 novos hooks (governance, session-end, cost-tracker, mcp-health, gateguard)
-  - **Continuous Learning** → criamos `continuous-learning` skill
-  - **Memory Persistence** → hooks stop:session-end + stop:cost-tracker
-  - **GateGuard** → pre:gateguard-fact-force hook no hermes-hooks
-  - **Config Protection** → pre:config-protection hook no hermes-hooks
-  - **Verification Loops** → checkpoint + eval hooks expandidos
+### UI Patterns (Jul/2026)
+- `references/ui-patterns-legal-data.md` — Padrões de UI para dados processuais
+- `references/avalonia11-ux-patterns.md` — Pitfalls Avalonia 11, glassmorphism simulado, tab switching, ShadUI patterns: estrutura de resultados, hover actions, flag de atenção, neumorphism CSS, tipos de busca. Consulte ao construir telas de busca/pesquisa, painéis de dados, carteira.
+- `references/process-card-pattern.md` — Card de extração de processo com análise IA editável, notas do advogado, timeline de movimentações, leis citadas, badges.
+
+### ECC — Agent Harness OS (Jul/2026)
+- ECC: https://github.com/affaan-m/ECC — 211.9K
+- Site oficial: https://ecc.tools
+- Discord: https://discord.gg/36yGMHGFbR
+- npm: ecc-universal, ecc-agentshield
+- Conceitos absorvidos:
+  - 66 agentes especializados -> python-reviewer, security-reviewer, architecture-reviewer
+  - AgentShield -> security-reviewer (scanning 5 camadas)
+  - Hooks avancados -> hermes-hooks expandido com 27 hooks
+  - Continuous Learning -> continuous-learning skill
+  - Memory Persistence -> stop:session-end + stop:cost-tracker hooks
+  - GateGuard -> pre:gateguard-fact-force hook
+  - Config Protection -> pre:config-protection hook
+  - Verification Loops -> checkpoint + eval hooks
+
+### BrasilAPI (Jul/2026)
+- Repo: https://github.com/BrasilAPI/BrasilAPI (10.8K, MIT)
+- Site: https://brasilapi.com.br
+- Absorvido: proxy com cache CDN, fallback multi-provider (CEP), handler/service pattern, zero-custo infra
+- Referencia: oss-absorb/references/brasilapi-patterns.md
+
+### LegalNLP (Jul/2026)
+- Repo: https://github.com/felipemaiapolo/legalnlp (191, MIT)
+- pip: legalnlp
+- Absorvido: mascaramento RegEx juridico (OAB, processo, valor), BERTikal, pipeline limpeza pt-BR
+- Referencia: oss-absorb/references/legalnlp-patterns.md
+
+### Direito Lux (Jul/2026)
+- Repo: https://github.com/opiagile/direito-lux-mvp (sem licenca, clean room)
+- Absorvido: DataJud ES queries, tribunal mapper, circuit breaker, retry backoff, MCP service
+- Referencia: specs/REFERENCIA_COMPLETA.md
